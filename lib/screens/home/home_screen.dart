@@ -1,5 +1,7 @@
+import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
 import 'package:newsify/core/constant.dart';
+import 'package:newsify/screens/details/article_details_screen.dart';
 import 'package:newsify/screens/home/data/model/article.dart';
 import 'package:newsify/screens/home/data/services/api_services.dart';
 
@@ -103,89 +105,93 @@ class _HomeScreenState extends State<HomeScreen> {
                   },
                 ),
                 SizedBox(height: 5),
-
                 FutureBuilder(
                   future: fetchData(selectCat),
                   builder: (context, snapshot) {
-                      return 
-                         Expanded(
-                           child: ListView.builder(
-                            itemBuilder: (context, index) {
-                              Article article = data[index];
-                              return Padding(
-                                padding: const EdgeInsets.all(8.0),
-                                child: Center(
-                                  child: Card(
-                                    color: Colors.white,
-                                    child: ListTile(
-                                      onTap: () {
-                                        // افتح تفاصيل الخبر
-                                      },
-                                      leading: ClipRRect(
-                                        borderRadius: BorderRadius.circular(8),
-                                        child: Image.network(
-                                          article.urlToImage ?? "",
-                                          width: 80,
-                                          height: 80,
-                                          fit: BoxFit.cover,
-                           
-                                          loadingBuilder:
-                                              (context, child, loadingProgress) {
-                                                if (loadingProgress == null) {
-                                                  return child;
-                                                }
-                           
-                                                return const SizedBox(
-                                                  width: 80,
-                                                  height: 80,
-                                                  child: Center(
-                                                    child:
-                                                        CircularProgressIndicator(),
-                                                  ),
-                                                );
-                                              },
-                           
-                                          errorBuilder:
-                                              (context, error, stackTrace) {
-                                                return const SizedBox(
-                                                  width: 80,
-                                                  height: 80,
-                                                  child: Icon(
-                                                    Icons.image_not_supported,
-                                                  ),
-                                                );
-                                              },
-                                        ),
+                    return Expanded(
+                      child: ListView.builder(
+                        itemBuilder: (context, index) {
+                          Article article = data[index];
+                          return Padding(
+                            padding: const EdgeInsets.all(8.0),
+                            child: Center(
+                              child: Card(
+                                color: Colors.white,
+                                child: ListTile(
+                                  onTap: () {
+                                    Navigator.push(
+                                      context,
+                                      MaterialPageRoute(
+                                        builder: (context) =>
+                                            ArticleDetailsScreen(
+                                              article: article,
+                                            ),
                                       ),
-                                      title: Text(
-                                        article.title,
-                                        maxLines: 3,
-                                        overflow: TextOverflow.ellipsis,
-                                        style: const TextStyle(
-                                          fontWeight: FontWeight.bold,
-                                        ),
-                                      ),
-                           
-                                      subtitle: Align(
-                                        alignment: Alignment.centerRight,
-                                        child: Text(
-                                          article.publishedAt ??
-                                              "No date available",
-                                          maxLines: 1,
-                                          overflow: TextOverflow.ellipsis,
-                                        ),
-                                      ),
+                                    );
+                                  },
+                                  leading: ClipRRect(
+                                    borderRadius: BorderRadius.circular(8),
+                                    child: article.urlToImage.isNotEmpty
+                                        ? CachedNetworkImage(
+                                            imageUrl: article.urlToImage,
+                                            width: 80,
+                                            height: 80,
+                                            fit: BoxFit.cover,
+                                            placeholder: (context, url) {
+                                              return const SizedBox(
+                                                width: 80,
+                                                height: 80,
+                                                child: Center(
+                                                  child:
+                                                      CircularProgressIndicator(),
+                                                ),
+                                              );
+                                            },
+
+                                            errorWidget: (context, url, error) {
+                                              return SizedBox(
+                                                width: 80,
+                                                height: 80,
+                                                child: Icon(
+                                                  Icons.image_not_supported,
+                                                ),
+                                              );
+                                            },
+                                          )
+                                        : SizedBox(
+                                            width: 80,
+                                            height: 80,
+                                            child: Icon(
+                                              Icons.image_not_supported,
+                                            ),
+                                          ),
+                                  ),
+                                  title: Text(
+                                    article.title,
+                                    maxLines: 3,
+                                    overflow: TextOverflow.ellipsis,
+                                    style: const TextStyle(
+                                      fontWeight: FontWeight.bold,
+                                    ),
+                                  ),
+
+                                  subtitle: Align(
+                                    alignment: Alignment.centerRight,
+                                    child: Text(
+                                      article.publishedAt,
+                                      maxLines: 1,
+                                      overflow: TextOverflow.ellipsis,
                                     ),
                                   ),
                                 ),
-                              );
-                            },
-                           
-                            itemCount: data.length,
-                                                   ),
-                         );
-                     
-                    
+                              ),
+                            ),
+                          );
+                        },
+
+                        itemCount: data.length,
+                      ),
+                    );
                   },
                 ),
               ],
